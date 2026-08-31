@@ -1,0 +1,94 @@
+<svg viewBox="0 0 1300 620" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1300" height="620" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="40" y="45" font-size="24" font-weight="700" fill="#1A1A2E">Lumen Lyceum — Data Architecture</text>
+  <text x="40" y="70" font-size="13" fill="#666666">EdTech Learning Analytics · Snowflake + dbt</text>
+
+  <!-- Layer 1: Source -->
+  <rect x="40" y="120" width="180" height="110" rx="10" fill="#F0F4FF" stroke="#3B5BDB" stroke-width="1.5"/>
+  <text x="130" y="155" font-size="14" font-weight="700" fill="#1A1A2E" text-anchor="middle">LMS Platform</text>
+  <text x="130" y="175" font-size="11" fill="#444444" text-anchor="middle">Source system</text>
+  <text x="130" y="193" font-size="11" fill="#444444" text-anchor="middle">(students, courses,</text>
+  <text x="130" y="209" font-size="11" fill="#444444" text-anchor="middle">lessons, assessments)</text>
+
+  <!-- Arrow 1 -->
+  <line x1="220" y1="175" x2="278" y2="175" stroke="#888888" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="249" y="165" font-size="10" fill="#666666" text-anchor="middle">daily export</text>
+
+  <!-- Layer 2: Ingestion -->
+  <rect x="280" y="120" width="180" height="110" rx="10" fill="#F0F4FF" stroke="#3B5BDB" stroke-width="1.5"/>
+  <text x="370" y="155" font-size="14" font-weight="700" fill="#1A1A2E" text-anchor="middle">Data Generator /</text>
+  <text x="370" y="172" font-size="14" font-weight="700" fill="#1A1A2E" text-anchor="middle">Export Job</text>
+  <text x="370" y="195" font-size="11" fill="#444444" text-anchor="middle">Bulk load to</text>
+  <text x="370" y="211" font-size="11" fill="#444444" text-anchor="middle">Snowflake sandbox</text>
+
+  <!-- Arrow 2 -->
+  <line x1="460" y1="175" x2="518" y2="175" stroke="#888888" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer 3: Raw -->
+  <rect x="520" y="120" width="180" height="110" rx="10" fill="#FFF4E6" stroke="#E8890C" stroke-width="1.5"/>
+  <text x="610" y="150" font-size="14" font-weight="700" fill="#1A1A2E" text-anchor="middle">LEARNSPHERE.RAW</text>
+  <text x="610" y="170" font-size="11" fill="#444444" text-anchor="middle">raw_students</text>
+  <text x="610" y="186" font-size="11" fill="#444444" text-anchor="middle">raw_courses</text>
+  <text x="610" y="202" font-size="11" fill="#444444" text-anchor="middle">raw_lessons</text>
+  <text x="610" y="218" font-size="11" fill="#444444" text-anchor="middle">raw_assessments</text>
+
+  <!-- Arrow 3 down to dbt -->
+  <line x1="610" y1="230" x2="610" y2="278" stroke="#888888" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="660" y="258" font-size="10" fill="#666666" text-anchor="middle">dbt (orchestrated daily)</text>
+
+  <!-- dbt layer container -->
+  <rect x="380" y="280" width="460" height="200" rx="10" fill="#F3F0FF" stroke="#7048E8" stroke-width="1.5"/>
+  <text x="610" y="305" font-size="14" font-weight="700" fill="#1A1A2E" text-anchor="middle">dbt Transformation Layer</text>
+
+  <rect x="400" y="320" width="120" height="60" rx="8" fill="#FFFFFF" stroke="#7048E8"/>
+  <text x="460" y="345" font-size="11" font-weight="600" text-anchor="middle">Staging</text>
+  <text x="460" y="360" font-size="9" fill="#666666" text-anchor="middle">stg_*</text>
+
+  <line x1="520" y1="350" x2="548" y2="350" stroke="#888888" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="550" y="320" width="120" height="60" rx="8" fill="#FFFFFF" stroke="#7048E8"/>
+  <text x="610" y="345" font-size="11" font-weight="600" text-anchor="middle">Intermediate</text>
+  <text x="610" y="360" font-size="9" fill="#666666" text-anchor="middle">int_*</text>
+
+  <line x1="670" y1="350" x2="698" y2="350" stroke="#888888" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="700" y="320" width="120" height="60" rx="8" fill="#FFFFFF" stroke="#7048E8"/>
+  <text x="760" y="340" font-size="11" font-weight="600" text-anchor="middle">Marts</text>
+  <text x="760" y="354" font-size="9" fill="#666666" text-anchor="middle">fct_enrollments</text>
+  <text x="760" y="367" font-size="9" fill="#666666" text-anchor="middle">mart_*</text>
+
+  <text x="610" y="410" font-size="10" fill="#444444" text-anchor="middle">+ dbt tests (severity: error/warn) run after marts, before docs</text>
+  <text x="610" y="430" font-size="10" fill="#444444" text-anchor="middle">+ dbt source freshness checked before staging runs</text>
+  <text x="610" y="455" font-size="10" fill="#8855DD" text-anchor="middle" font-weight="600">Orchestrated by Airflow / Dagster / Prefect (daily DAG)</text>
+
+  <!-- Arrow down to BI -->
+  <line x1="610" y1="480" x2="610" y2="528" stroke="#888888" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Layer: BI -->
+  <rect x="440" y="530" width="340" height="70" rx="10" fill="#E6FCF5" stroke="#12B886" stroke-width="1.5"/>
+  <text x="610" y="558" font-size="14" font-weight="700" fill="#1A1A2E" text-anchor="middle">BI / Dashboard Layer</text>
+  <text x="610" y="578" font-size="11" fill="#444444" text-anchor="middle">Curriculum dashboard · Credentialing dashboard · Reconciliation report</text>
+
+  <!-- Side: monitoring/alerting box -->
+  <rect x="900" y="280" width="340" height="200" rx="10" fill="#FFF0F0" stroke="#E03131" stroke-width="1.5"/>
+  <text x="1070" y="305" font-size="14" font-weight="700" fill="#1A1A2E" text-anchor="middle">Monitoring &amp; Alerting</text>
+  <text x="920" y="335" font-size="11" fill="#444444">• Source freshness: warn 30h / error 48h</text>
+  <text x="920" y="358" font-size="11" fill="#444444">• Test severity: error → fail build + page</text>
+  <text x="920" y="381" font-size="11" fill="#444444">• Test severity: warn → daily digest</text>
+  <text x="920" y="404" font-size="11" fill="#444444">• Run failure → 1 retry (5 min), then alert</text>
+  <text x="920" y="427" font-size="11" fill="#444444">• Alerts routed to Slack / email</text>
+  <text x="920" y="450" font-size="11" fill="#444444">• Last-good data served during failures</text>
+
+  <line x1="840" y1="380" x2="898" y2="380" stroke="#E03131" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowRed)"/>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#888888"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#E03131"/>
+    </marker>
+  </defs>
+</svg>

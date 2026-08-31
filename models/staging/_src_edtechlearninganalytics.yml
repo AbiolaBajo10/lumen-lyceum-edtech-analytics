@@ -1,0 +1,39 @@
+version: 2
+
+sources:
+  - name: learnsphere_raw
+    database: LEARNSPHERE
+    schema: RAW
+
+    tables:
+      - name: raw_students
+        loaded_at_field: last_active_at
+        freshness:
+          warn_after: {count: 30, period: hour}
+          error_after: {count: 48, period: hour}
+        columns:
+          - name: enrollment_id
+            tests:
+              - not_null
+              - unique
+
+      - name: raw_courses
+        columns:
+          - name: course_id
+            tests:
+              - not_null
+              - unique
+
+      - name: raw_lessons
+        columns:
+          - name: lesson_event_id
+            tests:
+              - not_null
+              - unique
+
+      - name: raw_assessments
+        columns:
+          - name: assessment_attempt_id
+            tests:
+              - not_null
+              - unique

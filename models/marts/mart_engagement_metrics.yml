@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: mart_engagement_metrics
+    description: >
+      Single-row summary of student-engagement KPIs. Completion rate is intentionally
+      reported twice (lessons-based vs assessment-based), not collapsed into one number.
+    columns:
+      - name: completion_rate_lessons_based
+        description: "% of enrolments where all lessons in the course were completed (Curriculum team's definition)."
+      - name: completion_rate_assessment_based
+        description: "% of enrolments where the final exam was passed (Credentialing team's definition)."
+      - name: active_learners_28day
+        description: "Count of enrolments with activity within 28 days of enrolled_at."
+      - name: avg_lessons_completed
+        description: "Mean number of distinct lessons completed per enrolment."
+      - name: assessment_pass_rate
+        description: "Of enrolments that attempted the exam, % that passed."
+      - name: median_days_to_complete
+        description: "Median days from enrolment to last activity, for lesson-complete enrolments."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              severity: error

@@ -1,0 +1,30 @@
+models:
+  - name: fct_enrollments
+    description: "One row per enrolment. Carries both completion definitions side by side — lessons-based and assessment-based — rather than collapsing to one number."
+    columns:
+      - name: enrollment_id
+        description: "Primary key. One student's one attempt at one course."
+        tests:
+          - unique:
+              severity: error
+          - not_null:
+              severity: error
+      - name: course_id
+        tests:
+          - relationships:
+              to: ref('stg_courses')
+              field: course_id
+              severity: error
+      - name: pct_lessons_completed
+        description: "Distinct lessons completed ÷ course's total lesson_count."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              severity: error
+      - name: completion_reconciled
+        description: "Bucketed reconciliation of the two completion definitions for this enrolment."
+        tests:
+          - accepted_values:
+              values: ['finished_lessons_no_pass', 'passed_without_finishing_lessons', 'complete_both', 'incomplete']
+              severity: warn
