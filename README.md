@@ -129,4 +129,3 @@ The two teams' numbers were never actually in conflict, they were answering diff
 - [`03-source-to-target-map.md`](./03-source-to-target-map.md)
 - [`04-assumptions-log.md`](./04-assumptions-log.md)
 - [`05-capstone-deck.pptx`](./05-capstone-deck.pptx)
-- `dbt docs`, run `dbt docs generate && dbt docs serve` locally
