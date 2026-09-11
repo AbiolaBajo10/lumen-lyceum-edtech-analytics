@@ -12,7 +12,7 @@ Two teams at Lumen Lyceum each run their own dashboard to track how well learner
 
 The Curriculum team reports 45.0% course completion. The Credentialing team reports 29.9%. Both numbers are correct, they simply measure different things, and neither dashboard was built to explain the other.
 
-This project delivers a single learning-analytics mart (`fct_enrollments`) that both teams can query, carrying both completion definitions side by side rather than collapsing them into one figure. A dedicated reconciliation model walks the 15-point gap between the two numbers line by line, attributing it to three distinct populations rather than leaving it unexplained. Along the way, five data-quality issues were identified and fixed at the modeling layer, and one, corrupted source timestamps, was traced to a bug in the upstream data generator and flagged for a source-level fix. The pipeline is fully tested (23 passing tests), monitored with severity-tiered alerting, and designed for daily orchestration.
+This project delivers a single learning-analytics mart (`fct_enrollments`) that both teams can query, carrying both completion definitions side by side rather than collapsing them into one figure. A dedicated reconciliation model walks the 15-point gap between the two numbers line by line, attributing it to three distinct populations rather than leaving it unexplained. Along the way, six data-quality issues were identified and fixed, including corrupted source timestamps traced to a bug in the upstream data generator and resolved at the source. The pipeline is fully tested (23 passing tests), monitored with severity-tiered alerting, and designed for daily orchestration.
 
 ## Stack
 Snowflake, dbt, (Airflow/Dagster/Prefect, design only, see below)
@@ -43,8 +43,8 @@ Rather than picking a winner, it carries both completion definitions as explicit
 | Avg. lessons completed | Mean distinct lessons completed per enrolment | 6.72 |
 | Avg. % lessons completed | Mean of (lessons completed ÷ course lesson count) | 67.0% |
 | Assessment pass rate | Of enrolments that attempted the exam, % that passed | 70.8% |
-| Active learners (28-day window) | Enrolments active within 28 days of enrolling | pending, see [Known issues](#known-issues) |
-| Median time-to-complete | Median days enrolment to last activity, lesson-complete enrolments only | pending, see [Known issues](#known-issues) |
+| Active learners (28-day window) | Enrolments active within 28 days of enrolling | 31.4% (15,693 of 50,000) |
+| Median time-to-complete | Median days enrolment to last activity, lesson-complete enrolments only | 45 days |
 
 ## 3. Reconciliation, bridging 45.0% and 29.9%
 
@@ -73,11 +73,11 @@ Rather than picking a winner, it carries both completion definitions as explicit
 | Dropped session-end timestamps (`completed_at` null) | Handled | Left null, treated as incomplete, not imputed |
 | Stale platform status field | Surfaced | Never trusted as ground truth, compared against both definitions instead |
 | Person-vs-enrolment grain trap | Fixed | Modeled at enrolment grain throughout; `student_id` never used as a dedup key |
-| Corrupted raw timestamps (`enrolled_at`/`last_active_at`) | Source-level bug | See below |
+| Corrupted raw timestamps (`enrolled_at`/`last_active_at`) | Fixed at source | See below |
 
-### Known issues
+### Resolved: corrupted raw timestamps
 
-`enrolled_at` and `last_active_at` loaded into Snowflake as corrupted values (e.g. year -1,688,798,502) via the provided data generator's `write_pandas` upload step. This was traced down to the upload itself: the generator's own Python date logic (`_random_datetimes`) produces correct values, and the corruption happens specifically during the write to Snowflake, independent of any dbt modeling. This has been flagged upstream to the data generator's maintainers with the diagnostic detail. `active_within_28_days`, `days_active_span`, and `median_days_to_complete` are unreliable until this is resolved and the raw tables are reloaded. Every other metric in this project is unaffected and confirmed correct.
+`enrolled_at` and `last_active_at` initially loaded into Snowflake as corrupted values (e.g. year -1,688,798,502) via the data generator's `write_pandas` upload step. This was traced down to the upload itself: the generator's own Python date logic (`_random_datetimes`) produced correct values, and the corruption happened specifically during the write to Snowflake, independent of any dbt modeling. The generator was corrected and the raw tables reloaded; `enrolled_at` and `last_active_at` now show valid 2024-2025 dates, and `active_within_28_days`, `days_active_span`, and `median_days_to_complete` are confirmed correct along with every other metric in this project.
 
 ## 5. Pipeline monitoring
 
@@ -117,11 +117,11 @@ Full rationale for each is in [`04-assumptions-log.md`](./04-assumptions-log.md)
 - Ship `fct_enrollments` and `mart_completion_reconciliation` as the shared source of truth both teams query directly, rather than each team maintaining its own disconnected calculation.
 - Use the reconciliation bucket breakdown as the standing reference whenever the two numbers are questioned. It already answers "why don't these match" without further ad hoc analysis.
 - Fix the platform's overnight status job separately from this pipeline. It disagrees with both modeled definitions (most notably missing the entire "tested out" population) and is actively misleading as an unlabeled third version of "complete."
-- Resolve the source timestamp bug (see [Known issues](#known-issues)) before relying on the active-learner or time-to-complete metrics operationally.
+- The source timestamp bug (see [Resolved: corrupted raw timestamps](#resolved-corrupted-raw-timestamps)) has been fixed; the active-learner and time-to-complete metrics above are confirmed reliable.
 
 ## Conclusion
 
-The two teams' numbers were never actually in conflict, they were answering different questions without saying so. This project replaces that ambiguity with one mart, two explicit definitions, and a model that shows exactly how 45.0% and 29.9% relate to each other. What's left is largely operational: resolve the upstream timestamp bug, decide whether to build out the orchestration DAG beyond the current design, and get the platform's status job aligned with what the underlying event data actually shows.
+The two teams' numbers were never actually in conflict, they were answering different questions without saying so. This project replaces that ambiguity with one mart, two explicit definitions, and a model that shows exactly how 45.0% and 29.9% relate to each other. What's left is largely operational: decide whether to build out the orchestration DAG beyond the current design, and get the platform's status job aligned with what the underlying event data actually shows.
 
 ## Submission set
 
@@ -129,3 +129,4 @@ The two teams' numbers were never actually in conflict, they were answering diff
 - [`03-source-to-target-map.md`](./03-source-to-target-map.md)
 - [`04-assumptions-log.md`](./04-assumptions-log.md)
 - [`05-capstone-deck.pptx`](./05-capstone-deck.pptx)
+- `dbt docs`, run `dbt docs generate && dbt docs serve` locally
